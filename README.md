@@ -1,30 +1,57 @@
-# code-with-quarkus project
+# quarkus-infinispan-failure
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Quarkus 1.5.1.Final issue with infinispan extension
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+## Testing steps
 
-## Running the application in dev mode
+### Start Infinispan
 
-You can run your application in dev mode that enables live coding using:
 ```
-./mvnw quarkus:dev
+docker run -d --rm -p 11222:11222 \
+  -v $(pwd)/infinispan/infinispan.xml:/opt/infinispan/server/conf/infinispan.xml \
+  --entrypoint /opt/infinispan/bin/server.sh \
+  infinispan/server:10.1.3.Final
 ```
 
-## Packaging and running the application
+### Run maven commands sequentially to see successful outcome
 
-The application can be packaged using `./mvnw package`.
-It produces the `code-with-quarkus-1.0.0-SNAPSHOT-runner.jar` file in the `/target` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/lib` directory.
+```
+mvn clean
+mvn compile
+mvn test
+```
 
-The application is now runnable using `java -jar target/code-with-quarkus-1.0.0-SNAPSHOT-runner.jar`.
+### Run maven commands together to see failure
 
-## Creating a native executable
+```
+mvn clean compile test
+```
 
-You can create a native executable using: `./mvnw package -Pnative`.
+This also fails
+```
+mvn clean
+mvn compile test
+```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: `./mvnw package -Pnative -Dquarkus.native.container-build=true`.
+Additional detail:
+* It appears that the Marshaller java files are created, but not compiled into class files, when it fails. You can see the java and class files easily after the above commands by executing `find target -name '*Marshaller*'`
 
-You can then execute your native executable with: `./target/code-with-quarkus-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/building-native-image.
+```
+mvn clean
+mvn compile
+find target -name '*Marshaller*'
+# output
+target/generated-sources/annotations/org/acme/Book$___Marshaller_f3251d80b7f97c5316431ab6fd7b3cce42c9d8c8189856dba3e3f2c585f19c79.java
+target/generated-sources/annotations/org/acme/Author$___Marshaller_58f9cfc92d6df0e524374380ae551ca945f9755247b3ced4618717b9b7152c47.java
+target/classes/org/acme/Book$___Marshaller_f3251d80b7f97c5316431ab6fd7b3cce42c9d8c8189856dba3e3f2c585f19c79.class
+target/classes/org/acme/Author$___Marshaller_58f9cfc92d6df0e524374380ae551ca945f9755247b3ced4618717b9b7152c47.class
+```
+versus the failure case:
+```
+mvn clean
+mvn compile test
+find target -name '*Marshaller*'
+# output
+target/generated-sources/annotations/org/acme/Book$___Marshaller_f3251d80b7f97c5316431ab6fd7b3cce42c9d8c8189856dba3e3f2c585f19c79.java
+target/generated-sources/annotations/org/acme/Author$___Marshaller_58f9cfc92d6df0e524374380ae551ca945f9755247b3ced4618717b9b7152c47.java
+```
