@@ -18,9 +18,9 @@ public class ExampleResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String hello() {
-        Book b = new Book("a","b",5, Set.of(new Author("Sean","Scott")));
+        Book b = new Book("hello","b",5, Set.of(new Author("Sean","Scott")));
         getCache().put("hi",b);
-        return getCache().get("hi").toString();
+        return b.getTitle();
     }
 
     public RemoteCache<String,Book> getCache(){
