@@ -55,3 +55,7 @@ find target -name '*Marshaller*'
 target/generated-sources/annotations/org/acme/Book$___Marshaller_f3251d80b7f97c5316431ab6fd7b3cce42c9d8c8189856dba3e3f2c585f19c79.java
 target/generated-sources/annotations/org/acme/Author$___Marshaller_58f9cfc92d6df0e524374380ae551ca945f9755247b3ced4618717b9b7152c47.java
 ```
+
+## Testing with other versions of Quarkus
+
+Maven profiles exist for 1.4.2.Final and 1.3.4.Final. They can be used by appending `-Pquarkus-1.4.2.Final` or `-Pquarkus-1.3.4.Final` on to any `mvn` command.
