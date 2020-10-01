@@ -8,6 +8,10 @@ Proven to exist (and is reproducible using this repo) in:
 * Quarkus 1.5.1.Final
 * Quarkus 1.8.1.Final
 
+**Current Fix:**
+From comment on original Quarkus issue: https://github.com/quarkusio/quarkus/issues/9980
+Reverting maven-compiler-plugin back to 3.8.1 and pulling in protostream 4.3.4.Final prevents Marshaller .class files from being removed.
+
 ## Summary
 
 Something, possibly the quarkus plugin, is deleting the compiled class files for the generated Marshallers.
@@ -29,7 +33,7 @@ Marshaller .class files are not removed.
 docker run -d --rm -p 11222:11222 \
   -v $(pwd)/infinispan/infinispan.xml:/opt/infinispan/server/conf/infinispan.xml \
   --entrypoint /opt/infinispan/bin/server.sh \
-  infinispan/server:10.1.3.Final
+  infinispan/server:11.0.3.Final
 ```
 
 ### Run maven commands sequentially to see successful outcome
